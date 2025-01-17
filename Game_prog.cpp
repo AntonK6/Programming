@@ -1,94 +1,61 @@
 ﻿#include <stdio.h>
+#include <iostream>
 #include <time.h>
-#include "Classes.cpp"
 
-
-
-void init_player(Player& player, const char* name)
-{
-	player.name = name;
-	player.health.max_health = 100;
-	player.health.cur_health = 100;
-	player.weapon_dmg = 0;
-	player.coins = 0;
-	player.inventory.count = 0;
-	player.inventory.current = 0;
-}
-
-
-void print_player(Player player)
-{
-	printf("Name: %s\n", player.name);
-	printf("Player health: %d/%d\n", player.health.cur_health, player.health.max_health);
-	printf("Player damage: %d\n", player.damage);
-	printf("Player weapon damage: %d\n", player.weapon_dmg);
-	printf("player coins: %d\n", player.coins);
-}
-
-
-void init_monster(Monster& monster, const char* type, int damage, int health)
-{
-	monster.damage = damage;
-	monster.type = type;
-	monster.health.max_health = health;
-	monster.health.cur_health = health;
-}
-
-
-void print_monster(Monster monster)
-{
-	printf("Type: %s\n", monster.type);
-	printf("Monster damage: %d\n", monster.damage);
-	printf("Monster health: %d/%d\n", monster.health.cur_health, monster.health.max_health);
-}
+#include "Cell.h"
+#include "Health.h"
+#include "Inventory.h"
+#include "Monster.h"
+#include "Player.h"
+#include "Potion.h"
+#include "Weapon.h"
 
 
 void manster_attack(Monster& monster, Player& player)
 {
-	if (monster.health.cur_health >= 0)
+	if (monster.Monster_get_cur_health() >= 0)
 	{
 		printf("Monster attacked\n");
-		player.health.cur_health -= monster.damage;
+		player.Player_taking(monster.Get_monster_dmg());
 	}
-	if (player.health.cur_health <= 0)
+	if (player.Player_get_cur_health() <= 0)
 	{
 		printf("Player is dead\n");
-		player.is_alive = false;
+		player.Player_dead();
 	}
 }
 
 
 void player_attack(Monster& monster, Player& player)
 {
-	if (player.health.cur_health >= 0)
+	if (player.Player_get_cur_health() >= 0)
 	{
 		printf("Player attacked\n");
-		monster.health.cur_health -= (player.damage + player.weapon_dmg);
+		monster.Monster_taking(player.Get_player_dmg());
 	}
-	if (monster.health.cur_health <= 0)
+	if (monster.Monster_get_cur_health() <= 0)
 	{
 		printf("Monster is dead\n");
-		monster.is_alive = false;
+		monster.Monster_dead();
 	}
 }
 
 
 void battle(Player& player, const char* type, int m_dmg, int m_health, int coins)
 {
-	Monster monster;
-	init_monster(monster, type, m_dmg, m_health);
-	while (monster.is_alive && player.is_alive)
+	Monster monster(m_health, m_dmg, type);
+	while (monster.Monster_alive() && player.Player_alive())
 	{
-		print_player(player);
+		player.Print_player(player);
 		printf("\n");
-		print_monster(monster);
+		monster.Print_monster(monster);
 		printf("\n");
 		player_attack(monster, player);
 		printf("\n");
-		if (monster.is_alive)
+		if (monster.Monster_alive())
 		{
 			manster_attack(monster, player);
-			if (player.is_alive) {
+			if (player.Player_alive()) {
 				printf("\nclick to continue\n\n");
 				while (getchar() != '\n');
 			}
@@ -98,23 +65,22 @@ void battle(Player& player, const char* type, int m_dmg, int m_health, int coins
 			while (getchar() != '\n');
 		}
 	}
-	if (player.is_alive == 0)
+	if (player.Player_alive() == 0)
 		exit(0);
 
-	player.coins += coins;
+	player.Player_set_coins(coins);
 }
 
 
 void get_potion(Player& player, const char* type, int health_res)
 {
 	Cell potion;
-	potion.potion.type = type;
-	potion.potion.health_res = health_res;
-	if (player.inventory.count < 6)
+
+	potion.Potion_set_type(type);
+	potion.Potion_set_health_res(health_res);
+	if (player.Get_inventory_count() < 6)
 	{
-		player.inventory.invent[player.inventory.current] = potion;
-		player.inventory.current++;
-		player.inventory.count++;
+		player.Invent_add(potion);
 	}
 }
 
@@ -122,13 +88,12 @@ void get_potion(Player& player, const char* type, int health_res)
 void get_weapon(Player& player, const char* name_weapon, int weapon_dmg)
 {
 	Cell weapon;
-	weapon.weapon.type = name_weapon;
-	weapon.weapon.weapon_dmg = weapon_dmg;
-	if (player.inventory.count < 6)
+
+	weapon.Weapon_set_type(name_weapon);
+	weapon.Weapon_set_weapon_dmg(weapon_dmg);
+	if (player.Get_inventory_count() < 6)
 	{
-		player.inventory.invent[player.inventory.current] = weapon;
-		player.inventory.current++;
-		player.inventory.count++;
+		player.Invent_add(weapon);
 	}
 }
 
@@ -185,34 +150,9 @@ void Finding_weapon(Player& player)
 }
 
 
-void Print_inventory(Player player)
-{
-	if (player.inventory.current != 0) {
-		printf("\n___________INVENTORY___________\n");
-		for (int i = 0; i < player.inventory.count; i++)
-		{
-			if (player.inventory.invent[i].potion.health_res > 0)
-			{
-				printf("_______________________________\n");
-				printf("%d: Type: % s\n", i + 1, player.inventory.invent[i].potion.type);
-				printf("Health_res: %d\n", player.inventory.invent[i].potion.health_res);
-				printf("_______________________________\n");
-			}
-			else
-			{
-				printf("_______________________________\n");
-				printf("%d: Type: % s\n", i + 1, player.inventory.invent[i].weapon.type);
-				printf("Weapon_dmg: %d\n", player.inventory.invent[i].weapon.weapon_dmg);
-				printf("_______________________________\n");
-			}
-		}
-	}
-}
-
-
 void Shop(Player& player)
 {
-	print_player(player);
+	player.Print_player(player);
 	printf("\nYou have entered the store!\n");
 	printf("1)Exit the store\n");
 	printf("You can:\n2)Restore lives(20 coins)\n3)Increase the attack(+5)(30 coins)\n\n");
@@ -228,10 +168,10 @@ void Shop(Player& player)
 	}
 	case 2:
 	{
-		if (player.coins >= 20)
+		if (player.Player_get_coins() >= 20)
 		{
-			player.health.cur_health = player.health.max_health;
-			player.coins -= 20;
+			player.Player_heal();
+			player.Player_set_coins(-20);
 		}
 		else
 		{
@@ -241,10 +181,10 @@ void Shop(Player& player)
 	}
 	case 3:
 	{
-		if (player.coins >= 30)
+		if (player.Player_get_coins() >= 30)
 		{
-			player.damage += 5;
-			player.coins -= 30;
+			player.Player_updmg(5);
+			player.Player_set_coins(-30);
 		}
 		else
 		{
@@ -258,23 +198,24 @@ void Shop(Player& player)
 
 int Choosing_weapon(Player& player)
 {
-	printf("Choose the weapon you want to pick up\n\n");
-
-	Print_inventory(player);
+	player.Print_inventory(player);
 
 	int cnt = 0;
 
 	for (int i = 0, cnt = 0; i <= 6; i++)
 	{
-		if (player.inventory.invent[i].weapon.weapon_dmg == 0)
+		Cell tm = player.Get_cell(i);
+		if (player.Weapon_get_weapon_dmg(tm) == 0)
 			cnt += 1;
 	}
 
 	if (cnt == 6)
 	{
 		printf("You don't have a weapon\n\n");
-		return 1;
+		return 0;
 	}
+
+	printf("Choose the weapon you want to pick up\n\n");
 
 	int k;
 
@@ -282,8 +223,9 @@ int Choosing_weapon(Player& player)
 		scanf_s("%d", &k);
 	} while (k < 1 || k > 6);
 	printf("\n");
-	if (player.inventory.invent[k - 1].weapon.weapon_dmg != 0)
-		player.weapon_dmg = player.inventory.invent[k - 1].weapon.weapon_dmg;
+	Cell tm = player.Get_cell(k-1);
+	if (player.Weapon_get_weapon_dmg(tm) != 0)
+		player.Player_set_weapondmg(player.Weapon_get_weapon_dmg(tm));
 	else
 		printf("It's not a weapon\n\n");
 
@@ -294,24 +236,24 @@ int Choosing_weapon(Player& player)
 
 int Restoring_health(Player& player)
 {
-	printf("Select the potion you want to use\n");
-
-	Print_inventory(player);
+	player.Print_inventory(player);
 
 	int cnt = 0;
 
 	for (int i = 0; i <= 6; i++)
 	{
-		printf("%d", i);
-		if (player.inventory.invent[i].potion.health_res == 0)
+		Cell tm = player.Get_cell(i);
+		if (player.Potion_get_health_res(tm) == 0)
 			cnt += 1;
 	}
 
 	if (cnt == 6)
 	{
 		printf("You don't have a potion\n\n");
-		return 1;
+		return 0;
 	}
+
+	printf("Select the potion you want to use\n");
 
 	int k;
 	Cell vrem;
@@ -319,15 +261,14 @@ int Restoring_health(Player& player)
 		scanf_s("%d", &k);
 	} while (k < 1 || k > 6);
 	printf("\n");
-	if (player.inventory.invent[k - 1].potion.health_res != 0)
+	Cell tm = player.Get_cell(k-1);
+	if (player.Potion_get_health_res(tm) != 0)
 	{
-		player.health.cur_health += player.inventory.invent[k - 1].potion.health_res;
+		player.Player_potion_heal(player.Potion_get_health_res(tm));
 
-		if (player.health.cur_health > 100)
-			player.health.cur_health = 100;
-		player.inventory.invent[k - 1] = vrem;
-		player.inventory.count--;
-		player.inventory.current--;
+		if (player.Player_get_cur_health() > 100)
+			player.Player_heal();
+		player.Invent_subtract();
 	}
 	else
 		printf("It's not a potion\n\n");
@@ -337,12 +278,13 @@ int Restoring_health(Player& player)
 }
 
 
+
 void Menu(Player& player)
 {
 	int k;
 	do {
 		do {
-			print_player(player);
+			player.Print_player(player);
 			printf("\nSelect an action:\n");
 			printf("1)Drink a potion:\n");
 			printf("2)Choose a weapon:\n");
@@ -380,20 +322,19 @@ void Menu(Player& player)
 
 int main()
 {
-	Player player;
-	init_player(player, "Steve");
-	Menu(player);
-	battle(player, "Zombie", 5, 20, 10);
-	Menu(player);
-	battle(player, "Zombie", 10, 30, 20);
-	Menu(player);
-	Finding_potion(player, 0);
-	Menu(player);
-	battle(player, "Skeleton", 15, 40, 30);
-	Menu(player);
-	Finding_weapon(player);
-	Menu(player);
-	battle(player, "Boss", 30, 50, 100);
+	Player* player = new Player("Steve");
+	Menu(*player);
+	battle(*player, "Zombie", 5, 20, 10);
+	Menu(*player);
+	battle(*player, "Zombie", 10, 30, 20);
+	Menu(*player);
+	Finding_potion(*player, 0);
+	Menu(*player);
+	battle(*player, "Skeleton", 15, 40, 30);
+	Menu(*player);
+	Finding_weapon(*player);
+	Menu(*player);
+	battle(*player, "Boss", 30, 50, 100);
 	printf("\nYou've won\n");
-	print_player(player);
+	player->Print_player(*player);
 }
