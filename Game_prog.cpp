@@ -2,15 +2,13 @@
 #include <iostream>
 #include <time.h>
 
-#include "Cell.h"
-#include "Health.h"
-#include "Inventory.h"
 #include "Monster.h"
 #include "Player.h"
-#include "Potion.h"
-#include "Weapon.h"
 
 
+//---------------------------------
+//---------Атака монстра-----------
+//---------------------------------
 void manster_attack(Monster& monster, Player& player)
 {
 	if (monster.Monster_get_cur_health() >= 0)
@@ -25,7 +23,9 @@ void manster_attack(Monster& monster, Player& player)
 	}
 }
 
-
+//---------------------------------
+//---------Атака игрока------------
+//---------------------------------
 void player_attack(Monster& monster, Player& player)
 {
 	if (player.Player_get_cur_health() >= 0)
@@ -40,6 +40,10 @@ void player_attack(Monster& monster, Player& player)
 	}
 }
 
+
+//-----------------------------------------
+//-----Сражение, первый атакует игрок------
+//-----------------------------------------
 
 void battle(Player& player, const char* type, int m_dmg, int m_health, int coins)
 {
@@ -72,6 +76,10 @@ void battle(Player& player, const char* type, int m_dmg, int m_health, int coins
 }
 
 
+//----------------------------------------------------------------
+//-----Добавление в инвентарь зелья лечения(вспомогательная)------
+//----------------------------------------------------------------
+
 void get_potion(Player& player, const char* type, int health_res)
 {
 	Cell potion;
@@ -85,6 +93,10 @@ void get_potion(Player& player, const char* type, int health_res)
 }
 
 
+//---------------------------------------------------------
+//-----Добавление в инвентарь оружия(вспомогательная)------
+//---------------------------------------------------------
+
 void get_weapon(Player& player, const char* name_weapon, int weapon_dmg)
 {
 	Cell weapon;
@@ -97,6 +109,10 @@ void get_weapon(Player& player, const char* name_weapon, int weapon_dmg)
 	}
 }
 
+
+//---------------------------------------------------------------
+//-----Игрок получает зелье лечения(нужно указать тип(0-3))------
+//---------------------------------------------------------------
 
 void Finding_potion(Player& player, int type)
 {
@@ -122,6 +138,10 @@ void Finding_potion(Player& player, int type)
 	}
 }
 
+
+//-------------------------------------------------------------
+//-----Игрок получает оружие, которое выбирается рандомно------
+//-------------------------------------------------------------
 
 void Finding_weapon(Player& player)
 {
@@ -149,6 +169,10 @@ void Finding_weapon(Player& player)
 	}
 }
 
+
+//--------------------------------------------------------------
+//-----Магазин(может восстановить жизни или увеличить dmg)------
+//--------------------------------------------------------------
 
 void Shop(Player& player)
 {
@@ -196,6 +220,10 @@ void Shop(Player& player)
 }
 
 
+//----------------------------------------------------
+//-----Игрок выбирает, какое оружие использовать------
+//----------------------------------------------------
+
 int Choosing_weapon(Player& player)
 {
 	player.Print_inventory(player);
@@ -233,6 +261,10 @@ int Choosing_weapon(Player& player)
 	return 0;
 }
 
+
+//---------------------------------------------------
+//-----Игрок выбирает, какое зелье использовать------
+//---------------------------------------------------
 
 int Restoring_health(Player& player)
 {
@@ -278,6 +310,13 @@ int Restoring_health(Player& player)
 }
 
 
+//-------------------------------
+//-----Меню----------------------
+//---1)Drink a potion------------
+//---2)Choose a weapon-----------
+//---3)Enter the store-----------
+//---4)Fight the next enemy------
+//-------------------------------
 
 void Menu(Player& player)
 {
@@ -286,10 +325,10 @@ void Menu(Player& player)
 		do {
 			player.Print_player(player);
 			printf("\nSelect an action:\n");
-			printf("1)Drink a potion:\n");
-			printf("2)Choose a weapon:\n");
-			printf("3)Enter the store:\n");
-			printf("4)Fight the next enemy:\n");
+			printf("1)Drink a potion\n");
+			printf("2)Choose a weapon\n");
+			printf("3)Enter the store\n");
+			printf("4)Fight the next enemy\n");
 			scanf_s("%d", &k);
 		} while (k < 1 || k > 4);
 
@@ -320,21 +359,34 @@ void Menu(Player& player)
 }
 
 
+//-----------------------------------------------------
+//-----Главная функция, в которой описан ход игры------
+//-----------------------------------------------------
+
 int main()
 {
 	Player* player = new Player("Steve");
+
 	Menu(*player);
 	battle(*player, "Zombie", 5, 20, 10);
+
 	Menu(*player);
 	battle(*player, "Zombie", 10, 30, 20);
+
 	Menu(*player);
 	Finding_potion(*player, 0);
+
 	Menu(*player);
 	battle(*player, "Skeleton", 15, 40, 30);
+
 	Menu(*player);
 	Finding_weapon(*player);
+
 	Menu(*player);
 	battle(*player, "Boss", 30, 50, 100);
+
 	printf("\nYou've won\n");
 	player->Print_player(*player);
+
+	delete player;
 }
