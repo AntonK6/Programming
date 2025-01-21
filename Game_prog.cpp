@@ -60,12 +60,11 @@ static void player_attack(Monster& monster, Player& player)
 //-----Сражение, первый атакует игрок------
 //-----------------------------------------
 
-static void battle(Player& player, const char* type, int m_dmg, int m_health, int coins)
+static void battle(Player& player, Monster monster, int coins)
 {
-	Monster monster(m_health, m_dmg, type);
 	while (monster.Monster_alive() && player.Player_alive())
 	{
-		player.Print_player(player);
+		Player::Print_player(player);
 		printf("\n");
 		monster.Print_monster(monster);
 		printf("\n");
@@ -125,6 +124,37 @@ static void get_weapon(Player& player, const char* name_weapon, int weapon_dmg)
 }
 
 
+
+	//---------------------------
+	//-----Выкинуть предмет------
+	//---------------------------
+
+int Invent_throw(Player& player)
+{
+	int cnt = 0;
+
+	for (int i = 0; i <= 5; i++)
+	{
+		if (player.Weapon_get_weapon_dmg(player.Get_cell(i)) != 0 || player.Potion_get_health_res(player.Get_cell(i)) != 0)
+			cnt += 1;
+	}
+
+	if (cnt == 0)
+	{
+		printf("The inventory is empty\n\n");
+		return 0;
+	}
+
+	player.Print_inventory(player);
+
+	int num;
+	do {
+		scanf_s("%d", &num);
+	} while (num < 1 || num > 6);
+	player.Invent_subtract(num);
+}
+
+
 //---------------------------------------------------------------
 //-----Игрок получает зелье лечения(нужно указать тип(0-3))------
 //---------------------------------------------------------------
@@ -161,7 +191,7 @@ static void Finding_potion(Player& player, int type)
 static void Finding_weapon(Player& player)
 {
 	srand(time(0));
-	int type = rand() % 2;
+	int type = rand() % 3;
 	switch (type)
 	{
 	case 0: {
@@ -191,10 +221,10 @@ static void Finding_weapon(Player& player)
 
 static void Shop(Player& player)
 {
-	player.Print_player(player);
+	Player::Print_player(player);
 	printf("\nYou have entered the store!\n");
 	printf("1)Exit the store\n");
-	printf("You can:\n2)Restore lives(20 coins)\n3)Increase the attack(+10)(50 coins)\n4)Raise the level(dmg+5)(50 coins)\n\n");
+	printf("You can:\n2)Restore lives(20 coins)\n3)Increase the attack(+10)(50 coins)\n4)Raise the level(dmg+5)(30 coins)\n\n");
 	int k;
 	do {
 		scanf_s("%d", &k);
@@ -254,14 +284,11 @@ static void Shop(Player& player)
 
 static int Choosing_weapon(Player& player)
 {
-	player.Print_inventory(player);
-
 	int cnt = 0;
 
-	for (int i = 0, cnt = 0; i <= 6; i++)
+	for (int i = 0; i <= 5; i++)
 	{
-		Cell tm = player.Get_cell(i);
-		if (player.Weapon_get_weapon_dmg(tm) == 0)
+		if (player.Weapon_get_weapon_dmg(player.Get_cell(i)) == 0)
 			cnt += 1;
 	}
 
@@ -271,6 +298,8 @@ static int Choosing_weapon(Player& player)
 		return 0;
 	}
 
+	player.Print_inventory(player);
+
 	printf("Choose the weapon you want to pick up\n\n");
 
 	int k;
@@ -279,9 +308,8 @@ static int Choosing_weapon(Player& player)
 		scanf_s("%d", &k);
 	} while (k < 1 || k > 6);
 	printf("\n");
-	Cell tm = player.Get_cell(k-1);
-	if (player.Weapon_get_weapon_dmg(tm) != 0)
-		player.Player_set_weapondmg(player.Weapon_get_weapon_dmg(tm));
+	if (player.Weapon_get_weapon_dmg(player.Get_cell(k - 1)) != 0)
+		player.Player_set_weapondmg(player.Weapon_get_weapon_dmg(player.Get_cell(k - 1)));
 	else
 		printf("It's not a weapon\n\n");
 
@@ -296,14 +324,11 @@ static int Choosing_weapon(Player& player)
 
 static int Restoring_health(Player& player)
 {
-	player.Print_inventory(player);
-
 	int cnt = 0;
 
-	for (int i = 0; i <= 6; i++)
+	for (int i = 0; i <= 5; i++)
 	{
-		Cell tm = player.Get_cell(i);
-		if (player.Potion_get_health_res(tm) == 0)
+		if (player.Potion_get_health_res(player.Get_cell(i)) == 0)
 			cnt += 1;
 	}
 
@@ -313,6 +338,8 @@ static int Restoring_health(Player& player)
 		return 0;
 	}
 
+	player.Print_inventory(player);
+
 	printf("Select the potion you want to use\n");
 
 	int k;
@@ -321,14 +348,13 @@ static int Restoring_health(Player& player)
 		scanf_s("%d", &k);
 	} while (k < 1 || k > 6);
 	printf("\n");
-	Cell tm = player.Get_cell(k-1);
-	if (player.Potion_get_health_res(tm) != 0)
+	if (player.Potion_get_health_res(player.Get_cell(k - 1)) != 0)
 	{
-		player.Player_potion_heal(player.Potion_get_health_res(tm));
+		player.Player_potion_heal(player.Potion_get_health_res(player.Get_cell(k - 1)));
 
 		if (player.Player_get_cur_health() > 100)
 			player.Player_heal();
-		player.Invent_subtract();
+		player.Invent_subtract(k);
 	}
 	else
 		printf("It's not a potion\n\n");
@@ -351,14 +377,15 @@ static void Menu(Player& player)
 	int k;
 	do {
 		do {
-			player.Print_player(player);
+			Player::Print_player(player);
 			printf("\nSelect an action:\n");
 			printf("1)Drink a potion\n");
 			printf("2)Choose a weapon\n");
 			printf("3)Enter the store\n");
-			printf("4)Fight the next enemy\n");
+			printf("4)Throw item\n");
+			printf("5)Fight the next enemy\n");
 			scanf_s("%d", &k);
-		} while (k < 1 || k > 4);
+		} while (k < 1 || k > 5);
 
 		switch (k)
 		{
@@ -379,10 +406,14 @@ static void Menu(Player& player)
 		}
 		case 4:
 		{
+			Invent_throw(player);
+		}
+		case 5:
+		{
 			break;
 		}
 		}
-	} while (k < 4);
+	} while (k < 5);
 	while (getchar() != '\n');
 }
 
@@ -393,28 +424,57 @@ static void Menu(Player& player)
 
 int main()
 {
+	Monster monster[2][3];
 	Player* player = new Player("Steve");
+	std::string type[3] = { "Zombie", "Skeleton", "Ghost" };
 
-	Menu(*player);
-	battle(*player, "Zombie", 5, 20, 1000);
+	srand(time(0));
 
-	Menu(*player);
-	battle(*player, "Zombie", 10, 30, 20);
+	int m_health = 20;
+	int m_dmg = 5;
+	int coins = 10;
 
-	Menu(*player);
-	Finding_potion(*player, 0);
+	int cnt = 0;
 
-	Menu(*player);
-	battle(*player, "Skeleton", 15, 40, 30);
+	while(cnt != 6)
+		{
+			int type_m = rand() % 2;
+			int type_map = rand() % 5;
 
-	Menu(*player);
-	Finding_weapon(*player);
+			Menu(*player);
+			if (type_map < 2) {
+				int i = 0;
+				int j = 0;
 
-	Menu(*player);
-	battle(*player, "Boss", 30, 50, 100);
+				monster[i][j].Monster_init(m_health, m_dmg, type[type_m]);
+				battle(*player, monster[i][j], coins);
 
-	printf("\nYou've won\n");
-	player->Print_player(*player);
+				cnt++;
+
+				i++;
+				j++;
+
+				m_health += 10;
+				m_dmg += 5;
+				coins += 10;
+			}
+
+			if (type_map == 3 || type_map == 2)
+			{
+				Finding_potion(*player, rand() % 3);
+			}
+
+			if (type_map == 4)
+			{
+				Finding_weapon(*player);
+			}
+		}
+
+	if (player->Player_alive())
+	{
+		printf("\nYou've won\n");
+		player->Print_player(*player);
+	}
 
 	delete player;
 }

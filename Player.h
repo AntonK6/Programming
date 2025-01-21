@@ -10,7 +10,7 @@
 class Player
 {
 	Inventory* inventory = new Inventory;
-	Health* health = new Health{ 100, 100 };
+	Health* health = new Health{ 100 };
 	std::string name;
 	int damage = 5;
 	int weapon_dmg = 0;
@@ -18,8 +18,9 @@ class Player
 	int coins = 0;
 	
 public:
-	Player(std::string name = "Steve") : name(name)
+	Player(std::string iname = "Steve")
 	{
+		name = iname;
 		damage = 5;
 		weapon_dmg = 0;
 		is_alive = true;
@@ -111,7 +112,7 @@ public:
 	//-----------------------------------------
 	//-----Удаление предмета из инвентаря------
 	//-----------------------------------------
-	void Invent_subtract() { inventory->Invent_subtract(); }
+	void Invent_subtract(int k) { inventory->Invent_subtract(k); }
 
 
 	//---------------------------------------------
@@ -132,7 +133,7 @@ public:
 	//---------------------------------------------
 	//-----Выводит показатели игрока на экран------
 	//---------------------------------------------
-	void Print_player(Player& player)
+	static void Print_player(Player& player)
 	{
 		std::cout << "Name: " + player.name << std::endl;
 		printf("Player health: %d/%d\n", player.health->Get_cur_health(), player.health->Get_max_health());

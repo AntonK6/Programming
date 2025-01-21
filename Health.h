@@ -7,8 +7,21 @@ class Health
 	int cur_health = 0;
 
 public:
-	Health(int cur = 100, int max = 100) : max_health(max), cur_health(cur)
-	{ }
+	Health(int cur = 100)
+	{
+		try {
+			if (cur <= 0)
+				throw 20;
+			max_health = cur;
+			cur_health = cur;
+		}
+		catch (int k)
+		{
+			max_health = k;
+			cur_health = k;
+		}
+		
+	}
 	
 
 	//----------------------------------------------------------------
