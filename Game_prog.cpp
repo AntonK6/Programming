@@ -6,56 +6,6 @@
 #include "Player.h"
 
 
-int Inventory::count = 0;
-
-Player& operator++(Player& player) // префиксный
-{
-	player.damage += 5;
-	return player;
-}
-
-Player& operator++(Player& player, int) // постфиксный
-{
-	player.damage += 5;
-	return player;
-}
-
-
-//---------------------------------
-//---------Атака монстра-----------
-//---------------------------------
-static void manster_attack(Monster& monster, Player& player)
-{
-	if (monster.Monster_get_cur_health() >= 0)
-	{
-		printf("Monster attacked\n");
-		player.Player_taking(monster.Get_monster_dmg());
-	}
-	if (player.Player_get_cur_health() <= 0)
-	{
-		printf("Player is dead\n");
-		player.Player_dead();
-	}
-}
-
-//---------------------------------
-//---------Атака игрока------------
-//---------------------------------
-static void player_attack(Monster& monster, Player& player)
-{
-	if (player.Player_get_cur_health() >= 0)
-	{
-		printf("Player attacked\n");
-		monster.Monster_taking(player.Get_player_dmg());
-	}
-	if (monster.Monster_get_cur_health() <= 0)
-	{
-		printf("Monster is dead\n");
-		monster.Monster_dead();
-	}
-}
-
-
 //-----------------------------------------
 //-----Сражение, первый атакует игрок------
 //-----------------------------------------
@@ -64,22 +14,22 @@ static void battle(Player& player, Monster monster, int coins)
 {
 	while (monster.Monster_alive() && player.Player_alive())
 	{
-		Player::Print_player(player);
+		player.Print_player();
 		printf("\n");
 		monster.Print_monster(monster);
 		printf("\n");
-		player_attack(monster, player);
+		monster.Player_attack(player);
 		printf("\n");
 		if (monster.Monster_alive())
 		{
-			manster_attack(monster, player);
+			monster.Monster_attack(player);
 			if (player.Player_alive()) {
-				printf("\nclick to continue\n\n");
+				std::cout << "\nclick to continue" << std::endl;
 				while (getchar() != '\n');
 			}
 		}
 		else {
-			printf("\nclick to continue\n\n");
+			std::cout << "\nclick to continue" << std::endl;
 			while (getchar() != '\n');
 		}
 	}
@@ -124,37 +74,6 @@ static void get_weapon(Player& player, const char* name_weapon, int weapon_dmg)
 }
 
 
-
-	//---------------------------
-	//-----Выкинуть предмет------
-	//---------------------------
-
-int Invent_throw(Player& player)
-{
-	int cnt = 0;
-
-	for (int i = 0; i <= 5; i++)
-	{
-		if (player.Weapon_get_weapon_dmg(player.Get_cell(i)) != 0 || player.Potion_get_health_res(player.Get_cell(i)) != 0)
-			cnt += 1;
-	}
-
-	if (cnt == 0)
-	{
-		printf("The inventory is empty\n\n");
-		return 0;
-	}
-
-	player.Print_inventory(player);
-
-	int num;
-	do {
-		scanf_s("%d", &num);
-	} while (num < 1 || num > 6);
-	player.Invent_subtract(num);
-}
-
-
 //---------------------------------------------------------------
 //-----Игрок получает зелье лечения(нужно указать тип(0-3))------
 //---------------------------------------------------------------
@@ -164,17 +83,17 @@ static void Finding_potion(Player& player, int type)
 	switch (type)
 	{
 	case 0: {
-		printf("\nHave you found a small healing potion\n\n");
+		std::cout << "\nHave you found a small healing potion\n" << std::endl;
 		get_potion(player, "small healing potion", 20);
 		break;
 	}
 	case 1: {
-		printf("\nHave you found the average cure potion\n\n");
+		std::cout << "\nHave you found the average cure potion\n" << std::endl;
 		get_potion(player, "average cure potion", 40);
 		break;
 	}
 	case 2: {
-		printf("\nHave you found a powerful healing potion\n\n");
+		std::cout << "\nHave you found a powerful healing potion\n" << std::endl;
 		get_potion(player, "powerful healing potion", 60);
 		break;
 	}
@@ -195,172 +114,23 @@ static void Finding_weapon(Player& player)
 	switch (type)
 	{
 	case 0: {
-		printf("\nHave you found the sword\n\n");
+		std::cout << "\nHave you found the sword\n" << std::endl;
 		get_weapon(player, "sword", 10);
 		break;
 	}
 	case 1: {
-		printf("\nHave you found the axe\n\n");
+		std::cout << "\nHave you found the axe\n" << std::endl;
 		get_weapon(player, "axe", 7);
 		break;
 	}
 	case 2: {
-		printf("\nHave you found the hammer\n\n");
+		std::cout << "\nHave you found the hammer\n" << std::endl;
 		get_weapon(player, "hammer", 5);
 		break;
 	}
 	default:
 		break;
 	}
-}
-
-
-//-----------------------------------------------------------------------------------
-//-----Магазин(может восстановить жизни или увеличить dmg или повысить уровень)------
-//-----------------------------------------------------------------------------------
-
-static void Shop(Player& player)
-{
-	Player::Print_player(player);
-	printf("\nYou have entered the store!\n");
-	printf("1)Exit the store\n");
-	printf("You can:\n2)Restore lives(20 coins)\n3)Increase the attack(+10)(50 coins)\n4)Raise the level(dmg+5)(30 coins)\n\n");
-	int k;
-	do {
-		scanf_s("%d", &k);
-	} while (k < 1 || k > 4);
-	switch (k)
-	{
-	case 1:
-	{
-		break;
-	}
-	case 2:
-	{
-		if (player.Player_get_coins() >= 20)
-		{
-			player.Player_heal();
-			player.Player_set_coins(-20);
-		}
-		else
-		{
-			printf("You don't have enough coins\n");
-		}
-		break;
-	}
-	case 3:
-	{
-		if (player.Player_get_coins() >= 50)
-		{
-			player+10;
-			player.Player_set_coins(-50);
-		}
-		else
-		{
-			printf("You don't have enough coins\n");
-		}
-		break;
-	}
-	case 4:
-	{
-		if (player.Player_get_coins() >= 30)
-		{
-			player++;
-			player.Player_set_coins(-30);
-		}
-		else
-		{
-			printf("You don't have enough coins\n");
-		}
-		break;
-	}
-	}
-}
-
-
-//----------------------------------------------------
-//-----Игрок выбирает, какое оружие использовать------
-//----------------------------------------------------
-
-static int Choosing_weapon(Player& player)
-{
-	int cnt = 0;
-
-	for (int i = 0; i <= 5; i++)
-	{
-		if (player.Weapon_get_weapon_dmg(player.Get_cell(i)) == 0)
-			cnt += 1;
-	}
-
-	if (cnt == 6)
-	{
-		printf("You don't have a weapon\n\n");
-		return 0;
-	}
-
-	player.Print_inventory(player);
-
-	printf("Choose the weapon you want to pick up\n\n");
-
-	int k;
-
-	do {
-		scanf_s("%d", &k);
-	} while (k < 1 || k > 6);
-	printf("\n");
-	if (player.Weapon_get_weapon_dmg(player.Get_cell(k - 1)) != 0)
-		player.Player_set_weapondmg(player.Weapon_get_weapon_dmg(player.Get_cell(k - 1)));
-	else
-		printf("It's not a weapon\n\n");
-
-	while (getchar() != '\n');
-	return 0;
-}
-
-
-//---------------------------------------------------
-//-----Игрок выбирает, какое зелье использовать------
-//---------------------------------------------------
-
-static int Restoring_health(Player& player)
-{
-	int cnt = 0;
-
-	for (int i = 0; i <= 5; i++)
-	{
-		if (player.Potion_get_health_res(player.Get_cell(i)) == 0)
-			cnt += 1;
-	}
-
-	if (cnt == 6)
-	{
-		printf("You don't have a potion\n\n");
-		return 0;
-	}
-
-	player.Print_inventory(player);
-
-	printf("Select the potion you want to use\n");
-
-	int k;
-	Cell vrem;
-	do {
-		scanf_s("%d", &k);
-	} while (k < 1 || k > 6);
-	printf("\n");
-	if (player.Potion_get_health_res(player.Get_cell(k - 1)) != 0)
-	{
-		player.Player_potion_heal(player.Potion_get_health_res(player.Get_cell(k - 1)));
-
-		if (player.Player_get_cur_health() > 100)
-			player.Player_heal();
-		player.Invent_subtract(k);
-	}
-	else
-		printf("It's not a potion\n\n");
-
-	while (getchar() != '\n');
-	return 0;
 }
 
 
@@ -377,13 +147,13 @@ static void Menu(Player& player)
 	int k;
 	do {
 		do {
-			Player::Print_player(player);
-			printf("\nSelect an action:\n");
-			printf("1)Drink a potion\n");
-			printf("2)Choose a weapon\n");
-			printf("3)Enter the store\n");
-			printf("4)Throw item\n");
-			printf("5)Fight the next enemy\n");
+			player.Print_player();
+			std::cout << "\nSelect an action:" << std::endl;
+			std::cout << "1)Drink a potion" << std::endl;
+			std::cout << "2)Choose a weapon" << std::endl;
+			std::cout << "3)Enter the store" << std::endl;
+			std::cout << "4)Throw item" << std::endl;
+			std::cout << "5)Fight the next enemy" << std::endl;
 			scanf_s("%d", &k);
 		} while (k < 1 || k > 5);
 
@@ -391,22 +161,23 @@ static void Menu(Player& player)
 		{
 		case 1:
 		{
-			Restoring_health(player);
+			player.Restoring_health();
 			break;
 		}
 		case 2:
 		{
-			Choosing_weapon(player);
+			player.Choosing_weapon();
 			break;
 		}
 		case 3:
 		{
-			Shop(player);
+			player.Shop();
 			break;
 		}
 		case 4:
 		{
-			Invent_throw(player);
+			player.Print_inventory();
+			player.Invent_subtract();
 		}
 		case 5:
 		{
@@ -449,6 +220,8 @@ int main()
 				monster[i][j].Monster_init(m_health, m_dmg, type[type_m]);
 				battle(*player, monster[i][j], coins);
 
+				player++;
+
 				cnt++;
 
 				i++;
@@ -472,9 +245,24 @@ int main()
 
 	if (player->Player_alive())
 	{
-		printf("\nYou've won\n");
-		player->Print_player(*player);
+		std::cout << "You've won<\n" << std::endl;
+		player->Print_player();
 	}
 
 	delete player;
 }
+
+
+
+
+
+//Придумать для чего в вашем проекте нужен производный класс и создать его(на С++ и Java);
+//Продемонстрировать применение модификатора protected (на С++ и Java);
+// 
+// 
+//Продемонстрировать перегрузку метода базового класса в производном классе(с вызовом метода базового класса и без такого вызова) (на С++ и Java);
+//Продемонстрировать в конструкторе производного класса с параметрами вызов конструктора базового класса(на С++ и Java);
+//Выполнить перегрузку оператора присваивания объекту производного класса объектов базового класса(С++).
+//Придумать разумное использование виртуальных функций и создать их в вашем проекте.Вызов виртуальной функции продемонстрировать через ее вызов не виртуальной функцией базового класса и через динамические объекты базового и производного классов после присваивания указателя.Продемонстрировать изменение работы программы, если функция не виртуальная(С++).
+//В проектах на C++, Java придумать разумное использование абстрактного класса и создать его.Продемонстрировать его использование;
+//В программах на C++ и Java придумать разумное использование и реализовать шаблон класса;

@@ -1,5 +1,6 @@
 #pragma once
 #include "Health.h"
+#include "Player.h"
 
 #include <string>
 #include <iostream>
@@ -38,17 +39,23 @@ public:
 	}
 
 
+	//---------------------------------
+	//---------Атака монстра-----------
+	//---------------------------------
+	void Monster_attack(Player& player);
+
+
+	//---------------------------------
+	//---------Атака игрока------------
+	//---------------------------------
+	void Player_attack(Player& player);
+
+
 	//----------------------------------------
 	//-----Возвращают показатели монстра------
 	//----------------------------------------
 	int Monster_get_cur_health() { return health.Get_cur_health(); }
 	int Get_monster_dmg() const { return damage; }
-
-
-	//----------------------
-	//-----Монстр умер------
-	//----------------------
-	void Monster_dead() { is_alive = false; }
 
 
 	//------------------------------------
@@ -68,8 +75,8 @@ public:
 	//----------------------------------------------
 	static void Print_monster(Monster& monster)
 	{
-		std::cout<<"type: " + monster.type<<std::endl;
-		printf("Monster health: %d/%d\n", monster.health.Get_cur_health(), monster.health.Get_max_health());
-		printf("Monster damage: %d\n", monster.damage);
+		std::cout<<"type: " + monster.type << std::endl;
+		std::cout << "Monster health: " << monster.health.Get_cur_health()<< "/" << monster.health.Get_max_health() << std::endl;
+		std::cout << "Monster damage: " << monster.damage << std::endl;
 	}
 };

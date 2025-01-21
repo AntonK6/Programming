@@ -75,7 +75,6 @@ public:
 	//-----Монеты------
 	//-----------------
 	void Player_set_coins(int coin_cnt) { coins += coin_cnt; }
-	int Player_get_coins() const { return coins; }
 
 
 	//------------------
@@ -85,22 +84,10 @@ public:
 	void Player_potion_heal(int heal) { health->Potion_heal(heal); }
 
 
-	//--------------------------------
-	//-----Установить dmg оружия------
-	//--------------------------------
-	void Player_set_weapondmg(int dmg) { weapon_dmg = dmg; }
-
-
 	//--------------------------------------
 	//-----Возвращает ячейку инвентаря------
 	//--------------------------------------
 	Cell& Get_cell(int i) { return inventory->Get_cell(i); }
-
-
-	//---------------------------------------------------
-	//-----Возвращают значения количества предметов------
-	//---------------------------------------------------
-	int Get_inventory_count() { return inventory->Get_count(); }
 
 
 	//------------------------------------------
@@ -112,33 +99,42 @@ public:
 	//-----------------------------------------
 	//-----Удаление предмета из инвентаря------
 	//-----------------------------------------
-	void Invent_subtract(int k) { inventory->Invent_subtract(k); }
-
-
-	//---------------------------------------------
-	//-----Возвращают значения зелья и оружия------
-	//---------------------------------------------
-	const char* Potion_get_type(Cell& cell) { return inventory->Potion_get_type(cell); }
-	int Potion_get_health_res(Cell& cell) { return inventory->Potion_get_health_res(cell); }
-	const char* Weapon_get_type(Cell& cell) { return inventory->Weapon_get_type(cell); }
-	int Weapon_get_weapon_dmg(Cell& cell) { return inventory->Weapon_get_weapon_dmg(cell); }
+	void Invent_subtract() { inventory->Invent_subtract(); }
 
 
 	//-------------------------------------
 	//-----Выводит интентарь на экран------
 	//-------------------------------------
-	void Print_inventory(Player& player) { inventory->Print_inventory(); }
+	void Print_inventory() { inventory->Print_inventory(); }
+
+
+	//---------------------------------------------------
+	//-----Игрок выбирает, какое зелье использовать------
+	//---------------------------------------------------
+	int Restoring_health();
+
+
+	//----------------------------------------------------
+	//-----Игрок выбирает, какое оружие использовать------
+	//----------------------------------------------------
+	int Choosing_weapon();
+
+
+	//-----------------------------------------------------------------------------------
+	//-----Магазин(может восстановить жизни или увеличить dmg или повысить уровень)------
+	//-----------------------------------------------------------------------------------
+	void Shop();
 
 
 	//---------------------------------------------
 	//-----Выводит показатели игрока на экран------
 	//---------------------------------------------
-	static void Print_player(Player& player)
+	void Print_player()
 	{
-		std::cout << "Name: " + player.name << std::endl;
-		printf("Player health: %d/%d\n", player.health->Get_cur_health(), player.health->Get_max_health());
-		printf("Player damage: %d\n", player.damage);
-		printf("Player weapon damage: %d\n", player.weapon_dmg);
-		printf("player coins: %d\n", player.coins);
+		std::cout << "Name: " << this->name << std::endl;
+		std::cout << "Player health: " << this->health->Get_cur_health() << "/" << this->health->Get_max_health() << std::endl;
+		std::cout << "Player damage: " << this->damage << std::endl;
+		std::cout << "Player weapon damage: " << this->weapon_dmg << std::endl;
+		std::cout << "player coins: " << this->coins << std::endl;
 	}
 };

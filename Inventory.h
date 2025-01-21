@@ -2,11 +2,12 @@
 #include "Cell.h"
 
 #include <stdio.h>
+#include <iostream>
 
 class Inventory
 {
 	static int count;
-	Cell *invent = new Cell[6];
+	Cell* invent = new Cell[6];
 
 public:
 	~Inventory()
@@ -34,16 +35,8 @@ public:
 	//-----------------------------------------
 	//-----Удаление предмета из инвентаря------
 	//-----------------------------------------
-	void Invent_subtract(int k)
-	{
-		Cell vrem;
-		if (k == 6) { invent[k - 1] = vrem; }
-		for (int i = k; i < 6; i++)
-		{
-			invent[i - 1] = invent[i];
-		}
-		count--;
-	};
+	int Invent_subtract();
+	int Invent_subtract(int num);
 
 
 	//---------------------------------------------
@@ -67,22 +60,22 @@ public:
 	void Print_inventory()
 	{
 		if (count != 0) {
-			printf("\n___________INVENTORY___________\n");
+			std::cout << "\n___________INVENTORY___________" << std::endl;
 			for (int i = 0; i < count; i++)
 			{
 				if (this->Potion_get_health_res(invent[i]) > 0)
 				{
-					printf("_______________________________\n");
-					printf("%d: Type: % s\n", i + 1, this->Potion_get_type(invent[i]));
-					printf("Health_res: %d\n", this->Potion_get_health_res(invent[i]));
-					printf("_______________________________\n");
+					std::cout << "_______________________________" << std::endl;
+					std::cout << i + 1 << ": Type: " << this->Potion_get_type(invent[i]) << std::endl;
+					std::cout << "Health_res: " << this->Potion_get_health_res(invent[i]) << std::endl;
+					std::cout << "_______________________________" << std::endl;
 				}
 				else
 				{
-					printf("_______________________________\n");
-					printf("%d: Type: % s\n", i + 1, this->Weapon_get_type(invent[i]));
-					printf("Weapon_dmg: %d\n", this->Weapon_get_weapon_dmg(invent[i]));
-					printf("_______________________________\n");
+					std::cout << "_______________________________" << std::endl;
+					std::cout << i + 1 << ": Type: " << this->Weapon_get_type(invent[i]) << std::endl;
+					std::cout << "Weapon_dmg: " << this->Weapon_get_weapon_dmg(invent[i]) << std::endl;
+					std::cout << "_______________________________" << std::endl;
 				}
 			}
 		}
