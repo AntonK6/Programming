@@ -2,6 +2,7 @@
 #include "Weapon.h"
 #include "Potion.h"
 
+
 class Cell
 {
 	Weapon weapon;
@@ -30,4 +31,3 @@ public:
 	const char* Weapon_get_type() { return weapon.Weapon_get_type(); }
 	int Weapon_get_weapon_dmg() { return weapon.Weapon_get_weapon_dmg(); }
 };
-

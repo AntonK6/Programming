@@ -1,15 +1,18 @@
 #pragma once
 #include "Health.h"
 
+#include <string>
+#include <iostream>
+
 class Monster
 {
 	Health health;
-	const char* type;
+	std::string type;
 	int damage = 0;
 	bool is_alive = true;
 
 public:
-	Monster(int health = 15, int dmg = 5, const char* type = "Zombie") : type(type), health{ health , health }
+	Monster(int health = 15, int dmg = 5, std::string type = "Zombie") : type(type), health{ health , health }
 	{
 		damage = dmg;
 		is_alive = true;
@@ -20,7 +23,7 @@ public:
 	//-----Возвращают показатели монстра------
 	//----------------------------------------
 	int Monster_get_cur_health() { return health.Get_cur_health(); }
-	int Get_monster_dmg() { return damage; }
+	int Get_monster_dmg() const { return damage; }
 
 
 	//----------------------
@@ -32,7 +35,7 @@ public:
 	//------------------------------------
 	//-----Проверка монстра на жизнь------
 	//------------------------------------
-	bool Monster_alive() { return is_alive; }
+	bool Monster_alive() const { return is_alive; }
 
 
 	//-------------------------------
@@ -46,7 +49,7 @@ public:
 	//----------------------------------------------
 	void Print_monster(Monster& monster)
 	{
-		printf("type: %s\n", monster.type);
+		std::cout<<"type: " + monster.type<<std::endl;
 		printf("Monster health: %d/%d\n", monster.health.Get_cur_health(), monster.health.Get_max_health());
 		printf("Monster damage: %d\n", monster.damage);
 	}

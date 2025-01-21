@@ -6,10 +6,25 @@
 #include "Player.h"
 
 
+int Inventory::count = 0;
+
+Player& operator++(Player& player) // префиксный
+{
+	player.damage += 5;
+	return player;
+}
+
+Player& operator++(Player& player, int) // постфиксный
+{
+	player.damage += 5;
+	return player;
+}
+
+
 //---------------------------------
 //---------Атака монстра-----------
 //---------------------------------
-void manster_attack(Monster& monster, Player& player)
+static void manster_attack(Monster& monster, Player& player)
 {
 	if (monster.Monster_get_cur_health() >= 0)
 	{
@@ -26,7 +41,7 @@ void manster_attack(Monster& monster, Player& player)
 //---------------------------------
 //---------Атака игрока------------
 //---------------------------------
-void player_attack(Monster& monster, Player& player)
+static void player_attack(Monster& monster, Player& player)
 {
 	if (player.Player_get_cur_health() >= 0)
 	{
@@ -45,7 +60,7 @@ void player_attack(Monster& monster, Player& player)
 //-----Сражение, первый атакует игрок------
 //-----------------------------------------
 
-void battle(Player& player, const char* type, int m_dmg, int m_health, int coins)
+static void battle(Player& player, const char* type, int m_dmg, int m_health, int coins)
 {
 	Monster monster(m_health, m_dmg, type);
 	while (monster.Monster_alive() && player.Player_alive())
@@ -80,13 +95,13 @@ void battle(Player& player, const char* type, int m_dmg, int m_health, int coins
 //-----Добавление в инвентарь зелья лечения(вспомогательная)------
 //----------------------------------------------------------------
 
-void get_potion(Player& player, const char* type, int health_res)
+static void get_potion(Player& player, const char* type, int health_res)
 {
 	Cell potion;
 
 	potion.Potion_set_type(type);
 	potion.Potion_set_health_res(health_res);
-	if (player.Get_inventory_count() < 6)
+	if (Inventory::Get_count() < 6)
 	{
 		player.Invent_add(potion);
 	}
@@ -97,13 +112,13 @@ void get_potion(Player& player, const char* type, int health_res)
 //-----Добавление в инвентарь оружия(вспомогательная)------
 //---------------------------------------------------------
 
-void get_weapon(Player& player, const char* name_weapon, int weapon_dmg)
+static void get_weapon(Player& player, const char* name_weapon, int weapon_dmg)
 {
 	Cell weapon;
 
 	weapon.Weapon_set_type(name_weapon);
 	weapon.Weapon_set_weapon_dmg(weapon_dmg);
-	if (player.Get_inventory_count() < 6)
+	if (Inventory::Get_count() < 6)
 	{
 		player.Invent_add(weapon);
 	}
@@ -114,7 +129,7 @@ void get_weapon(Player& player, const char* name_weapon, int weapon_dmg)
 //-----Игрок получает зелье лечения(нужно указать тип(0-3))------
 //---------------------------------------------------------------
 
-void Finding_potion(Player& player, int type)
+static void Finding_potion(Player& player, int type)
 {
 	switch (type)
 	{
@@ -143,7 +158,7 @@ void Finding_potion(Player& player, int type)
 //-----Игрок получает оружие, которое выбирается рандомно------
 //-------------------------------------------------------------
 
-void Finding_weapon(Player& player)
+static void Finding_weapon(Player& player)
 {
 	srand(time(0));
 	int type = rand() % 2;
@@ -170,20 +185,20 @@ void Finding_weapon(Player& player)
 }
 
 
-//--------------------------------------------------------------
-//-----Магазин(может восстановить жизни или увеличить dmg)------
-//--------------------------------------------------------------
+//-----------------------------------------------------------------------------------
+//-----Магазин(может восстановить жизни или увеличить dmg или повысить уровень)------
+//-----------------------------------------------------------------------------------
 
-void Shop(Player& player)
+static void Shop(Player& player)
 {
 	player.Print_player(player);
 	printf("\nYou have entered the store!\n");
 	printf("1)Exit the store\n");
-	printf("You can:\n2)Restore lives(20 coins)\n3)Increase the attack(+5)(30 coins)\n\n");
+	printf("You can:\n2)Restore lives(20 coins)\n3)Increase the attack(+10)(50 coins)\n4)Raise the level(dmg+5)(50 coins)\n\n");
 	int k;
 	do {
 		scanf_s("%d", &k);
-	} while (k < 1 || k > 3);
+	} while (k < 1 || k > 4);
 	switch (k)
 	{
 	case 1:
@@ -205,9 +220,22 @@ void Shop(Player& player)
 	}
 	case 3:
 	{
+		if (player.Player_get_coins() >= 50)
+		{
+			player+10;
+			player.Player_set_coins(-50);
+		}
+		else
+		{
+			printf("You don't have enough coins\n");
+		}
+		break;
+	}
+	case 4:
+	{
 		if (player.Player_get_coins() >= 30)
 		{
-			player.Player_updmg(5);
+			player++;
 			player.Player_set_coins(-30);
 		}
 		else
@@ -224,7 +252,7 @@ void Shop(Player& player)
 //-----Игрок выбирает, какое оружие использовать------
 //----------------------------------------------------
 
-int Choosing_weapon(Player& player)
+static int Choosing_weapon(Player& player)
 {
 	player.Print_inventory(player);
 
@@ -266,7 +294,7 @@ int Choosing_weapon(Player& player)
 //-----Игрок выбирает, какое зелье использовать------
 //---------------------------------------------------
 
-int Restoring_health(Player& player)
+static int Restoring_health(Player& player)
 {
 	player.Print_inventory(player);
 
@@ -318,7 +346,7 @@ int Restoring_health(Player& player)
 //---4)Fight the next enemy------
 //-------------------------------
 
-void Menu(Player& player)
+static void Menu(Player& player)
 {
 	int k;
 	do {
@@ -368,7 +396,7 @@ int main()
 	Player* player = new Player("Steve");
 
 	Menu(*player);
-	battle(*player, "Zombie", 5, 20, 10);
+	battle(*player, "Zombie", 5, 20, 1000);
 
 	Menu(*player);
 	battle(*player, "Zombie", 10, 30, 20);

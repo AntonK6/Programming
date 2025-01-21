@@ -5,16 +5,20 @@
 
 class Inventory
 {
-	Cell invent[6];
-	int count = 0;
-	int current = 0;
+	static int count;
+	Cell *invent = new Cell[6];
 
 public:
+	~Inventory()
+	{
+		delete[] invent;
+	}
+
+
 	//---------------------------------------------------
-	//-----Возвращают значения количества предметов------
+	//-----Возвращает значения количества предметов------
 	//---------------------------------------------------
-	int Get_count() { return count; };
-	int Get_current() { return current; };
+	static int Get_count() { return count; };
 
 
 	//------------------------------------------
@@ -22,9 +26,8 @@ public:
 	//------------------------------------------
 	void Invent_add(Cell& cell)
 	{
-		invent[current] = cell;
+		invent[count] = cell;
 		count++;
-		current++;
 	};
 
 
@@ -34,9 +37,8 @@ public:
 	void Invent_subtract()
 	{
 		Cell vrem;
-		invent[current] = vrem;
+		invent[count - 1] = vrem;
 		count--;
-		current--;
 	};
 
 
@@ -52,7 +54,7 @@ public:
 	//--------------------------------------
 	//-----Возвращает ячейку инвентаря------
 	//--------------------------------------
-	Cell Get_cell(int i) { return invent[i]; }
+	Cell& Get_cell(int i) const { return invent[i]; }
 
 
 	//-------------------------------------
@@ -60,7 +62,7 @@ public:
 	//-------------------------------------
 	void Print_inventory()
 	{
-		if (current != 0) {
+		if (count != 0) {
 			printf("\n___________INVENTORY___________\n");
 			for (int i = 0; i < count; i++)
 			{
@@ -82,4 +84,3 @@ public:
 		}
 	}
 };
-

@@ -1,7 +1,7 @@
 #pragma once
 class Potion
 {
-	const char* type;
+	const char* type = "";
 	int health_res = 0;
 
 public:
@@ -15,7 +15,7 @@ public:
 	//------------------------------------
 	//-----Возвращают значения зелья------
 	//------------------------------------
-	const char* Potion_get_type() { return type; }
-	int Potion_get_health_res() { return health_res; }
+	const char* Potion_get_type() const { return type; }
+	int Potion_get_health_res() const { return health_res; }
 };
 

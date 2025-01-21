@@ -1,7 +1,7 @@
 #pragma once
 class Weapon
 {
-	const char* type;
+	const char* type = "";
 	int weapon_dmg = 0;
 
 public:
@@ -15,7 +15,7 @@ public:
 	//-------------------------------------
 	//-----Возвращают значения оружия------
 	//-------------------------------------
-	const char* Weapon_get_type() { return type; }
-	int Weapon_get_weapon_dmg() { return weapon_dmg; }
+	const char* Weapon_get_type() const { return type; }
+	int Weapon_get_weapon_dmg() const { return weapon_dmg; }
 };
 

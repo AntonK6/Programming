@@ -3,20 +3,22 @@
 #include "Inventory.h"
 
 #include <stdio.h>
+#include <iostream>
+#include <string>
 
 
 class Player
 {
 	Inventory* inventory = new Inventory;
 	Health* health = new Health{ 100, 100 };
-	const char* name;
+	std::string name;
 	int damage = 5;
 	int weapon_dmg = 0;
 	bool is_alive = true;
 	int coins = 0;
 	
 public:
-	Player(const char* name = "Steve") : name(name)
+	Player(std::string name = "Steve") : name(name)
 	{
 		damage = 5;
 		weapon_dmg = 0;
@@ -38,12 +40,28 @@ public:
 	void Player_dead() { is_alive = false; }
 
 
+	//-------------------------------
+	//-----Повышение уровня----------
+	//-------------------------------
+	friend Player& operator++(Player& player);			// префиксный
+	friend Player& operator++(Player& player, int);		// постфиксный
+
+
+	//-------------------------------
+	//-----Повышение урона----------
+	//-------------------------------
+	void operator+ (int dmg)
+	{
+		this->damage += dmg;
+	}
+
+
 	//----------------------------------------
-	//-----Возвращают показатели монстра------
+	//-----Возвращают показатели игрока------
 	//----------------------------------------
 	int Player_get_cur_health() { return health->Get_cur_health(); }
-	int Get_player_dmg() { return damage + weapon_dmg; }
-	bool Player_alive() { return is_alive; }
+	int Get_player_dmg() const { return damage + weapon_dmg; }
+	bool Player_alive() const { return is_alive; }
 
 
 	//-------------------------------
@@ -56,7 +74,7 @@ public:
 	//-----Монеты------
 	//-----------------
 	void Player_set_coins(int coin_cnt) { coins += coin_cnt; }
-	int Player_get_coins() { return coins; }
+	int Player_get_coins() const { return coins; }
 
 
 	//------------------
@@ -64,12 +82,6 @@ public:
 	//------------------
 	void Player_heal() { health->Heal(); }
 	void Player_potion_heal(int heal) { health->Potion_heal(heal); }
-
-
-	//-------------------------------
-	//-----Увеличить dmg игрока------
-	//-------------------------------
-	void Player_updmg(int dmg) { damage += dmg; }
 
 
 	//--------------------------------
@@ -81,14 +93,13 @@ public:
 	//--------------------------------------
 	//-----Возвращает ячейку инвентаря------
 	//--------------------------------------
-	Cell Get_cell(int i) { return inventory->Get_cell(i); }
+	Cell& Get_cell(int i) { return inventory->Get_cell(i); }
 
 
 	//---------------------------------------------------
 	//-----Возвращают значения количества предметов------
 	//---------------------------------------------------
 	int Get_inventory_count() { return inventory->Get_count(); }
-	int Get_inventory_current() { return inventory->Get_current(); }
 
 
 	//------------------------------------------
@@ -123,7 +134,7 @@ public:
 	//---------------------------------------------
 	void Print_player(Player& player)
 	{
-		printf("Name: %s\n", player.name);
+		std::cout << "Name: " + player.name << std::endl;
 		printf("Player health: %d/%d\n", player.health->Get_cur_health(), player.health->Get_max_health());
 		printf("Player damage: %d\n", player.damage);
 		printf("Player weapon damage: %d\n", player.weapon_dmg);
