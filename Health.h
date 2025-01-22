@@ -3,6 +3,7 @@
 
 class Health
 {
+protected:
 	int max_health = 0;
 	int cur_health = 0;
 
@@ -22,24 +23,20 @@ public:
 		}
 		
 	}
-	
-
-	//----------------------------------------------------------------
-	//-----Возвращают значения текущего и максимального здоровья------
-	//----------------------------------------------------------------
-	int Get_max_health() const { return max_health; }
-	int Get_cur_health() const { return cur_health; }
 
 
-	//------------------
-	//-----Лечение------
+	int Get_cur_health() { return cur_health; }
+	int Get_max_health() { return max_health; }
+
+
+	//---------------------------------
+	//-----Повышение здоровья----------
+	//---------------------------------
+	virtual void Heal_lvlup() { max_health += 5; cur_health = max_health; }
+
+
+	//------------------	
+	//-----Лечение------ 
 	//------------------
 	void Heal() { cur_health = max_health; }
-	void Potion_heal(int heal) { cur_health += heal; }
-
-
-	//--------------------------
-	//-----Получение урона------
-	//--------------------------
-	void Health_dmg(int dmg) { cur_health -= dmg; }
 };

@@ -30,7 +30,7 @@ int Player::Restoring_health()
 	{
 		this->Player_potion_heal(inventory->Potion_get_health_res(inventory->Get_cell(k - 1)));
 
-		if (health->Get_cur_health() > 100)
+		if (cur_health > 100)
 			this->Player_heal();
 		inventory->Invent_subtract(k);
 	}
@@ -83,11 +83,11 @@ void Player::Shop()
 	this->Print_player();
 	std::cout << "\nYou have entered the store!" << std::endl;
 	std::cout << "1)Exit the store" << std::endl;
-	std::cout << "You can:\n2)Restore lives(20 coins)\n3)Increase the attack(+10)(50 coins)\n4)Raise the level(dmg+5)(30 coins)\n" << std::endl;
+	std::cout << "You can:\n2)Restore lives(20 coins)\n3)Increase the attack(+10)(50 coins)\n4)Raise the level(dmg+5)(hp+5)(30 coins)\n5)Increase health(hp+15)(30 coins)\n" << std::endl;
 	int k;
 	do {
 		scanf_s("%d", &k);
-	} while (k < 1 || k > 4);
+	} while (k < 1 || k > 5);
 	switch (k)
 	{
 	case 1:
@@ -133,6 +133,11 @@ void Player::Shop()
 		}
 		break;
 	}
+	case 5:
+	{
+		Heal_lvlup(15);
+		break;
+	}
 	}
 }
 
@@ -141,6 +146,7 @@ Player& operator++(Player& player) // префиксный
 {
 	std::cout << "Level up: вьп + 5" << std::endl;
 	player.damage += 5;
+	player.Health::Heal_lvlup();
 	return player;
 }
 
@@ -148,5 +154,6 @@ Player& operator++(Player& player, int) // постфиксный
 {
 	std::cout << "Level up: вьп + 5" << std::endl;
 	player.damage += 5;
+	player.Health::Heal_lvlup();
 	return player;
 }

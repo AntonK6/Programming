@@ -6,7 +6,7 @@
 //---------------------------------
 void Monster::Monster_attack(Player& player)
 {
-	if (health.Get_cur_health() >= 0)
+	if (cur_health >= 0)
 	{
 		std::cout << "Monster attacked" << std::endl;
 		player.Player_taking(damage);
@@ -27,7 +27,7 @@ void Monster::Player_attack(Player& player)
 	if (player.Player_get_cur_health() >= 0)
 	{
 		std::cout << "Player attacked" << std::endl;
-		health.Health_dmg(player.Get_player_dmg());
+		Monster_taking(player.Get_player_dmg());
 	}
 	if (this->Monster_get_cur_health() <= 0)
 	{

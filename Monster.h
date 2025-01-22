@@ -5,15 +5,14 @@
 #include <string>
 #include <iostream>
 
-class Monster
+class Monster: Health
 {
-	Health health;
 	std::string type;
 	int damage = 0;
 	bool is_alive = true;
 
 public:
-	Monster(int health = 15, int dmg = 5, std::string type1 = "Zombie"): health{ health }
+	Monster(int health = 15, int dmg = 5, std::string type1 = "Zombie"): Health(health)
 	{
 		try {
 			if (dmg <= 0)
@@ -33,9 +32,10 @@ public:
 	//----------------------------
 	void Monster_init(int m_health, int m_dmg, std::string type)
 	{
-		this->damage = m_dmg;
-		this->type = type;
-		this->health = m_health;
+		damage = m_dmg;
+		type = type;
+		max_health = m_health;
+		cur_health = m_health;
 	}
 
 
@@ -54,7 +54,7 @@ public:
 	//----------------------------------------
 	//-----Возвращают показатели монстра------
 	//----------------------------------------
-	int Monster_get_cur_health() { return health.Get_cur_health(); }
+	int Monster_get_cur_health() { return cur_health; }
 	int Get_monster_dmg() const { return damage; }
 
 
@@ -67,16 +67,16 @@ public:
 	//-------------------------------
 	//-----Монстр получает урон------
 	//-------------------------------
-	void Monster_taking(int dmg) { health.Health_dmg(dmg); }
+	void Monster_taking(int dmg) { cur_health -= dmg; }
 
 
 	//----------------------------------------------
 	//-----Выводит показатели монстра на экран------
 	//----------------------------------------------
-	static void Print_monster(Monster& monster)
+	void Print_monster()
 	{
-		std::cout<<"type: " + monster.type << std::endl;
-		std::cout << "Monster health: " << monster.health.Get_cur_health()<< "/" << monster.health.Get_max_health() << std::endl;
-		std::cout << "Monster damage: " << monster.damage << std::endl;
+		std::cout<<"type: " + type << std::endl;
+		std::cout << "Monster health: " << cur_health<< "/" << max_health << std::endl;
+		std::cout << "Monster damage: " << damage << std::endl;
 	}
 };

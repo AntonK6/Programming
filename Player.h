@@ -7,10 +7,9 @@
 #include <string>
 
 
-class Player
+class Player: Health
 {
 	Inventory* inventory = new Inventory;
-	Health* health = new Health{ 100 };
 	std::string name;
 	int damage = 5;
 	int weapon_dmg = 0;
@@ -18,7 +17,7 @@ class Player
 	int coins = 0;
 	
 public:
-	Player(std::string iname = "Steve")
+	Player(std::string iname = "Steve", int health = 100): Health(health)
 	{
 		name = iname;
 		damage = 5;
@@ -31,7 +30,14 @@ public:
 	~Player()
 	{
 		delete inventory;
-		delete health;
+	}
+
+
+	Player operator=(Health& health)
+	{
+		Player player{ "Steve", health.Get_cur_health() };
+
+		return player;
 	}
 
 
@@ -48,8 +54,14 @@ public:
 	friend Player& operator++(Player& player, int);		// постфиксный
 
 
+	//---------------------------------
+	//-----Повышение здоровья----------
+	//---------------------------------
+	void Heal_lvlup(int hp) { max_health += hp; cur_health = max_health; }
+
+
 	//-------------------------------
-	//-----Повышение урона----------
+	//-----Повышение урона-----------
 	//-------------------------------
 	void operator+ (int dmg)
 	{
@@ -60,7 +72,7 @@ public:
 	//----------------------------------------
 	//-----Возвращают показатели игрока------
 	//----------------------------------------
-	int Player_get_cur_health() { return health->Get_cur_health(); }
+	int Player_get_cur_health() { return cur_health; }
 	int Get_player_dmg() const { return damage + weapon_dmg; }
 	bool Player_alive() const { return is_alive; }
 
@@ -68,7 +80,7 @@ public:
 	//-------------------------------
 	//-----Игрок получает урон------
 	//-------------------------------
-	void Player_taking(int dmg) { health->Health_dmg(dmg); }
+	void Player_taking(int dmg) { cur_health -= dmg; }
 
 
 	//-----------------
@@ -80,8 +92,8 @@ public:
 	//------------------
 	//-----Лечение------
 	//------------------
-	void Player_heal() { health->Heal(); }
-	void Player_potion_heal(int heal) { health->Potion_heal(heal); }
+	void Player_heal() { cur_health = max_health; }
+	void Player_potion_heal(int heal) { cur_health += heal; }
 
 
 	//--------------------------------------
@@ -131,10 +143,10 @@ public:
 	//---------------------------------------------
 	void Print_player()
 	{
-		std::cout << "Name: " << this->name << std::endl;
-		std::cout << "Player health: " << this->health->Get_cur_health() << "/" << this->health->Get_max_health() << std::endl;
-		std::cout << "Player damage: " << this->damage << std::endl;
-		std::cout << "Player weapon damage: " << this->weapon_dmg << std::endl;
-		std::cout << "player coins: " << this->coins << std::endl;
+		std::cout << "Name: " << name << std::endl;
+		std::cout << "Player health: " << cur_health << "/" << max_health << std::endl;
+		std::cout << "Player damage: " << damage << std::endl;
+		std::cout << "Player weapon damage: " << weapon_dmg << std::endl;
+		std::cout << "player coins: " << coins << std::endl;
 	}
 };
